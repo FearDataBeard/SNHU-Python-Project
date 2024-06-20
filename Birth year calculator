@@ -1,0 +1,25 @@
+"""
+Input Name and age to print input with age-year conversion.
+"""
+# import current time/date
+from datetime import datetime
+
+
+# calculates age to birth year
+def calculate_birth_year(age):
+    current_year = datetime.now().year
+    birth_year = current_year - age
+    return birth_year
+
+
+# Get user input for name and age with a loop and exception handling
+user_name = input('What is your name? ')
+user_age = None
+while user_age is None:
+    try:
+        user_age = int(input('How old are you? '))
+    except ValueError:
+        print('Invalid input. Please enter a valid integer for age.')
+# Output name and convert age to birth year
+birth_year_output = calculate_birth_year(user_age)
+print(f"Hello {user_name}! You were born in {birth_year_output}")
