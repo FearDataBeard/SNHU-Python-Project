@@ -1,0 +1,115 @@
+"""Rand Codon"""
+class Room:
+    """Class representing rooms in the game.
+
+    Attributes:
+        name (str): The name of the room.
+        description (str): The description of the room.
+        adjacent_rooms (dict): Dictionary containing adjacent rooms and their directions.
+    """
+
+    def __init__(self, name, description):
+        """Initialize a room with a given name and description."""
+        self.name = name
+        self.description = description
+        self.adjacent_rooms = {}
+
+    def add_adjacent_room(self, direction, room):
+        """Add an adjacent room in a given direction.
+
+        Args:
+            direction (str): The direction of the adjacent room.
+            room (Room): The adjacent room object.
+        """
+        self.adjacent_rooms[direction] = room
+
+
+class ResidentPython:
+    """Class representing the main game.
+
+    Attributes:
+        rooms (dict): Dictionary containing all rooms in the game.
+        current_room (Room): The current room the player is in.
+    """
+
+    def __init__(self):
+        """Initialize the game."""
+        self.rooms = {
+            "Entry Way": Room("Entry Way",
+                              "A dark room with a collapsed ceiling behind you, and a broken sliding glass door. Dense debris from the collapsed ceiling blocks your vision, you can't see any further past the door."),
+            "Lobby": Room("Lobby",
+                          "A large dark room with a slight ray of light from the sky window lit in the center of the room, looks like a hotel lobby."),
+            "Right Wing": Room("Right Wing",
+                               "You find yourself surrounded by workout equipment, windows shattered, and door torn off the hinges."),
+            "Right Wing Exit": Room("Right Wing Exit",
+                                    "You are in a dark room, you can feel the edge of the door that it's been welded shut, and the staircase has been barricaded from the top of the stairs."),
+            "Left Wing": Room("Left Wing",
+                              "You're in a well-lit room, light coming in from the windows up above, looks like a gym with basketballs scattered all over and glass on the floor."),
+            "Left Wing Exit": Room("Left Wing Exit",
+                                   "Slight light enters from the window of the right side of the door, the door seems to be welded shut. You are in a room with a barricaded staircase."),
+            "Lunchroom": Room("Lunchroom",
+                              "A dark room and dust fills the air, tables flipped over and food on the floor, seems like you're in the lunchroom."),
+            "Pool": Room("Pool",
+                         "A slightly lit room, a pool in the middle of the room, looks murky and doesn't look safe to swim in.")
+        }
+        # Add adjacent rooms
+        self.rooms["Entry Way"].add_adjacent_room("east", self.rooms["Lobby"])
+        self.rooms["Lobby"].add_adjacent_room("west", self.rooms["Entry Way"])
+        self.rooms["Lobby"].add_adjacent_room("south", self.rooms["Right Wing"])
+        self.rooms["Lobby"].add_adjacent_room("north", self.rooms["Left Wing"])
+        self.rooms["Lobby"].add_adjacent_room("east", self.rooms["Lunchroom"])
+        self.rooms["Right Wing"].add_adjacent_room("north", self.rooms["Lobby"])
+        self.rooms["Right Wing"].add_adjacent_room("east", self.rooms["Right Wing Exit"])
+        self.rooms["Right Wing Exit"].add_adjacent_room("west", self.rooms["Right Wing"])
+        self.rooms["Left Wing"].add_adjacent_room("south", self.rooms["Lobby"])
+        self.rooms["Left Wing"].add_adjacent_room("east", self.rooms["Left Wing Exit"])
+        self.rooms["Left Wing Exit"].add_adjacent_room("west", self.rooms["Left Wing"])
+        self.rooms["Lunchroom"].add_adjacent_room("west", self.rooms["Lobby"])
+        self.rooms["Lunchroom"].add_adjacent_room("north", self.rooms["Pool"])
+        self.rooms["Pool"].add_adjacent_room("south", self.rooms["Lunchroom"])
+        self.current_room = None
+
+    def start_menu(self):
+        """Display the main menu and handle user choices."""
+        print("Resident Python: Directors Cut")
+        while True:
+            choice = input("Main Menu:\n1. Play Game\n2. Quit\nChoose an option: ").lower()
+            if choice in {"1", "play", "play game"}:
+                self.play()
+            elif choice in {"2", "quit"}:
+                self.quit_game()
+            else:
+                print("Invalid choice. Please enter 'play' or 'quit'.")
+
+    def quit_game(self):
+        """Quit the game."""
+        print("Thanks for playing!")
+        exit()
+
+    def move(self):
+        """Handle moving between rooms."""
+        while True:
+            valid_directions = list(self.current_room.adjacent_rooms.keys())
+            prompt = f"Enter direction ({', '.join(valid_directions)}) to move or [quit] to exit: "
+            direction = input(prompt).lower()
+            if direction == "quit":
+                self.quit_game()
+            elif direction in self.current_room.adjacent_rooms:
+                self.current_room = self.current_room.adjacent_rooms[direction]
+                print(self.current_room.description)
+                break
+            else:
+                print("Invalid direction. Try again.")
+
+    def play(self):
+        """Start the game."""
+        self.current_room = self.rooms["Entry Way"]
+        print(self.current_room.description)
+        while True:
+            self.move()
+
+
+# Start the game
+if __name__ == "__main__":
+    game = ResidentPython()
+    game.start_menu()
