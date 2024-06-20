@@ -1,0 +1,255 @@
+import random
+
+class Item:
+    """Base class for all items in the game."""
+    def __init__(self, name):
+        """Initialize an item with a given name."""
+        self.name = name
+
+    def __str__(self):
+        """Return the name of the item when converted to a string."""
+        return self.name
+
+
+class Weapon(Item):
+    """Class representing weapons."""
+    def __init__(self, name, damage):
+        """Initialize a weapon with a given name and damage."""
+        super().__init__(name)
+        self.damage = damage
+
+
+class HealthPack(Item):
+    """Class representing health packs."""
+    def __init__(self):
+        """Initialize a health pack."""
+        super().__init__("Health Pack")
+
+
+class KevlarVest(Item):
+    """Class representing kevlar vests."""
+    def __init__(self):
+        """Initialize a kevlar vest."""
+        super().__init__("Kevlar Vest")
+
+
+class KevlarHelmet(Item):
+    """Class representing kevlar helmets."""
+    def __init__(self):
+        """Initialize a kevlar helmet."""
+        super().__init__("Kevlar Helmet")
+
+
+class KevlarPaddings(Item):
+    """Class representing kevlar paddings."""
+    def __init__(self):
+        """Initialize kevlar paddings."""
+        super().__init__("Kevlar Paddings")
+
+
+class KevlarBoots(Item):
+    """Class representing kevlar boots."""
+    def __init__(self):
+        """Initialize kevlar boots."""
+        super().__init__("Kevlar Boots")
+
+
+class KevlarGauntlet(Item):
+    """Class representing kevlar gauntlets."""
+    def __init__(self):
+        """Initialize kevlar gauntlets."""
+        super().__init__("Kevlar Gauntlet")
+
+
+class Knife(Weapon):
+    """Class representing knives."""
+    def __init__(self):
+        """Initialize a knife."""
+        super().__init__("Knife", 100)
+
+
+class Shotgun(Weapon):
+    """Class representing shotguns."""
+    def __init__(self):
+        """Initialize a shotgun."""
+        super().__init__("Shotgun", 100)
+
+
+class Pistol(Weapon):
+    """Class representing pistols."""
+    def __init__(self):
+        """Initialize a pistol."""
+        super().__init__("Pistol", 50)
+
+
+class Room:
+    """Class representing rooms in the game.
+
+    Attributes:
+        name (str): The name of the room.
+        description (str): The description of the room.
+        adjacent_rooms (dict): Dictionary containing adjacent rooms and their directions.
+    """
+
+    def __init__(self, name, description):
+        """Initialize a room with a given name and description."""
+        self.name = name
+        self.description = description
+        self.adjacent_rooms = {}
+        self.items = []
+
+    def add_adjacent_room(self, direction, room):
+        """Add an adjacent room in a given direction.
+
+        Args:
+            direction (str): The direction of the adjacent room.
+            room (Room): The adjacent room object.
+        """
+        self.adjacent_rooms[direction] = room
+
+
+class ResidentPython:
+    """Class representing the main game.
+
+    Attributes:
+        rooms (dict): Dictionary containing all rooms in the game.
+        current_room (Room): The current room the player is in.
+    """
+
+    def __init__(self):
+        """Initialize the game."""
+        self.rooms = {
+            "Entry Way": Room("Entry Way",
+                              "A dark room with a collapsed ceiling behind you, and a broken sliding glass door. Dense debris from the collapsed ceiling blocks your vision, you can't see any further past the door."),
+            "Lobby": Room("Lobby",
+                          "A large dark room with a slight ray of light from the sky window lit in the center of the room, looks like a hotel lobby."),
+            "Right Wing": Room("Right Wing",
+                               "You find yourself surrounded by workout equipment, windows shattered, and door torn off the hinges."),
+            "Right Wing Exit": Room("Right Wing Exit",
+                                    "You are in a dark room, you can feel the edge of the door that it's been welded shut, and the staircase has been barricaded from the top of the stairs."),
+            "Left Wing": Room("Left Wing",
+                              "You're in a well-lit room, light coming in from the windows up above, looks like a gym with basketballs scattered all over and glass on the floor."),
+            "Left Wing Exit": Room("Left Wing Exit",
+                                   "Slight light enters from the window of the right side of the door, the door seems to be welded shut. You are in a room with a barricaded staircase."),
+            "Lunchroom": Room("Lunchroom",
+                              "A dark room and dust fills the air, tables flipped over and food on the floor, seems like you're in the lunchroom."),
+            "Pool": Room("Pool",
+                         "A slightly lit room, a pool in the middle of the room, looks murky and doesn't look safe to swim in.")
+        }
+        # Add adjacent rooms
+        self.rooms["Entry Way"].add_adjacent_room("east", self.rooms["Lobby"])
+        self.rooms["Lobby"].add_adjacent_room("west", self.rooms["Entry Way"])
+        self.rooms["Lobby"].add_adjacent_room("south", self.rooms["Right Wing"])
+        self.rooms["Lobby"].add_adjacent_room("north", self.rooms["Left Wing"])
+        self.rooms["Lobby"].add_adjacent_room("east", self.rooms["Lunchroom"])
+        self.rooms["Right Wing"].add_adjacent_room("north", self.rooms["Lobby"])
+        self.rooms["Right Wing"].add_adjacent_room("east", self.rooms["Right Wing Exit"])
+        self.rooms["Right Wing Exit"].add_adjacent_room("west", self.rooms["Right Wing"])
+        self.rooms["Left Wing"].add_adjacent_room("south", self.rooms["Lobby"])
+        self.rooms["Left Wing"].add_adjacent_room("east", self.rooms["Left Wing Exit"])
+        self.rooms["Left Wing Exit"].add_adjacent_room("west", self.rooms["Left Wing"])
+        self.rooms["Lunchroom"].add_adjacent_room("west", self.rooms["Lobby"])
+        self.rooms["Lunchroom"].add_adjacent_room("east", self.rooms["Pool"])
+
+        # Add items to rooms
+        self.rooms["Lobby"].items = [KevlarVest()]
+        self.rooms["Right Wing"].items = [Shotgun()]
+        self.rooms["Right Wing Exit"].items = [KevlarBoots()]
+        self.rooms["Left Wing"].items = [KevlarPaddings()]
+        self.rooms["Left Wing Exit"].items = [Knife()]
+        self.rooms["Lunchroom"].items = [KevlarGauntlet()]
+        self.items_collected = []
+        self.current_room = None
+
+    def start_menu(self):
+        """Display the main menu and handle user choices."""
+        print("Resident Python: Directors Cut")
+        while True:
+            choice = input("Main Menu:\n1. Play Game\n2. Quit\nChoose an option: ").lower()
+            if choice in {"1", "play", "play game"}:
+                self.play()
+            elif choice in {"2", "quit"}:
+                self.quit_game()
+            else:
+                print("Invalid choice. Please enter 'play' or 'quit'.")
+
+    def quit_game(self):
+        """Quit the game."""
+        print("Thanks for playing!")
+        self.start_menu()
+
+    def move(self):
+        """Handle moving between rooms."""
+        while True:
+            valid_directions = list(self.current_room.adjacent_rooms.keys())
+            prompt = f"Enter direction ({', '.join(valid_directions)}) to move, [inventory] to show inventory, or [quit] to exit: "
+            choice = input(prompt).lower()
+            if choice == "quit":
+                self.quit_game()
+            elif choice == "inventory":
+                self.show_inventory()
+            elif choice in valid_directions:
+                self.current_room = self.current_room.adjacent_rooms[choice]
+                print(self.current_room.description)
+                self.show_items_in_room()
+                # Check if all items are collected before entering the Pool room
+                if self.current_room.name == "Pool" and len(self.items_collected) == 6:
+                    print("You survived the horde!")
+                    self.quit_game()
+                elif self.current_room.name == "Pool":
+                    print("You've been bitten by a zombie, only death awaits you now.")
+                    self.quit_game()
+                break
+            else:
+                print("Invalid choice. Try again.")
+
+    def show_items_in_room(self):
+        """Display items in the current room."""
+        if self.current_room.items:
+            print("You see something from a distance.")
+            for item in self.current_room.items:
+                print(item)
+            while True:
+                choice = input("Your choices: [move] or [collect item]: ").lower()
+                if choice == "move":
+                    break
+                elif choice == "collect item":
+                    item = self.current_room.items[0]  # Assume there is only one item in the room
+                    print(f"You've picked up {item}.")
+                    self.items_collected.append(item)
+                    self.current_room.items.remove(item)
+                    break
+                else:
+                    print("Invalid choice. Please enter 'move' or 'collect item'.")
+
+    def collect_item(self, item):
+        """Handle collecting items from the room."""
+        if self.current_room.zombies and random.random() < 0.5:
+            print("Looks like a zombie is in my way of collecting the item, I must kill the zombie first!")
+            self.shoot_or_run()
+        else:
+            print(f"You've collected {item}.")
+            self.items_collected.append(item)
+            self.current_room.items.remove(item)
+
+    def show_inventory(self):
+        """Display the player's inventory."""
+        print("Items in inventory:")
+        for item in self.items_collected:
+            print(item)
+
+    def play(self):
+        """Start the game."""
+        self.current_room = self.rooms["Entry Way"]
+        print(self.current_room.description)
+        while True:
+            self.move()
+
+    def play_game(self):
+        """Start the game."""
+        self.start_menu()
+
+# Start the game
+if __name__ == "__main__":
+    game = ResidentPython()
+    game.play_game()
